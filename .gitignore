@@ -1,2 +1,7 @@
 # Project exclude paths
 /out/
+/simple/errorlogs/
+/simple/replays/
+*.class
+*.json
+/LuxAi.iml

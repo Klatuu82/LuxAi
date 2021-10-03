@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import lux.*;
 
 public class Bot {
+  private static int round = 0;
   public static void main(final String[] args) throws Exception {
     Agent agent = new Agent();
     // initialize
@@ -34,8 +35,10 @@ public class Bot {
       for (int i = 0; i < player.units.size(); i++) {
         Unit unit = player.units.get(i);
         if (unit.isWorker() && unit.canAct()) {
+          actions.add(Annotate.sidetext("We can Act"));
           if (unit.getCargoSpaceLeft() > 0) {
             // if the unit is a worker and we have space in cargo, lets find the nearest resource tile and try to mine it
+            actions.add(Annotate.sidetext("Try to Mine"));
             Cell closestResourceTile = getClosestResourceTile(player, resourceTiles, unit);
 
             if (closestResourceTile != null) {
@@ -45,15 +48,19 @@ public class Bot {
             }
           } else {
             // if unit is a worker and there is no cargo space left, and we have cities, lets return to them
+            actions.add(Annotate.sidetext("Try to go Home"));
             if (player.cities.size() > 0) {
               City city = player.cities.values().iterator().next();
-              double closestDist = 999999;
-              CityTile closestCityTile = getClosestCityTile(unit, city, closestDist);
+              CityTile closestCityTile = getClosestCityTile(unit, city);
               if (closestCityTile != null) {
                 Direction dir = unit.pos.directionTo(closestCityTile.pos);
                 actions.add(unit.move(dir));
               }
             }
+          }
+          City city = player.cities.values().stream().filter(town -> town.fuel > 100).findFirst().orElse(null);
+          if (city != null) {
+
           }
         }
       }
@@ -78,7 +85,8 @@ public class Bot {
     }
   }
 
-  private static CityTile getClosestCityTile(Unit unit, City city, double closestDist) {
+  private static CityTile getClosestCityTile(Unit unit, City city) {
+    double closestDist = 999999;
     CityTile closestCityTile = null;
     for (CityTile citytile : city.citytiles) {
       double dist = citytile.pos.distanceTo(unit.pos);
